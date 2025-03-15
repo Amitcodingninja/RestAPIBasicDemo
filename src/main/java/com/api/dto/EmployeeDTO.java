@@ -15,7 +15,7 @@ public class EmployeeDTO {
     private String address;
 
     @Min(value = 1000, message = "Salary must be at least 1000")
-    private int salary;
+    private Integer salary;
 
     public @NotBlank(message = "Name cannot be empty") @Size(min = 2, message = "Name must be at least 2 characters long") String getName() {
         return name;

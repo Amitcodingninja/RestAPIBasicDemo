@@ -78,5 +78,30 @@ public class MyController {
             }
         }
     }
+
     // I will Start Partial update from Here
+    @PatchMapping("employees/{id}")
+    public ResponseEntity<?> updatePartial(@PathVariable int id, @RequestBody Map<String, Object> map) {
+        // 1. Valid
+        List<String> errorList = myService.validation(map);
+        if (errorList.isEmpty()) {
+            // 2. ID Exist
+            Optional<EmployeeEntity> data = myService.readSingle(id);
+            if(data.isPresent()){
+                return ResponseEntity.ok("SUCCESS");
+            }
+            else{
+
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ID Does Not Exist");
+            }
+
+        }
+
+
+        // Update
+
+        return null;
+    }
+
+
 }
