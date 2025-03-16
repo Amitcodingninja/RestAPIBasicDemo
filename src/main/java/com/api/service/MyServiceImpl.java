@@ -60,62 +60,67 @@ public class MyServiceImpl implements MyService {
     @Override
     public List<String> validation(Map<String, Object> map) {
         List<String> errorList = new ArrayList<>();
+        EmployeeDTO tempDTO = new EmployeeDTO(); // DTO instance for validation
+
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String fieldName = entry.getKey();
-            Object fieldvalue = entry.getValue();
+            Object fieldValue = entry.getValue();
 
             try {
                 Field field = EmployeeDTO.class.getDeclaredField(fieldName);
                 field.setAccessible(true);
-                EmployeeDTO employeeDTO = new EmployeeDTO();
-                field.set(employeeDTO, fieldvalue);
-                Set<ConstraintViolation<EmployeeDTO>> voilations = validator.validate(employeeDTO);
-                for (ConstraintViolation<EmployeeDTO> voilation : voilations) {
-                    errorList.add(voilation.getMessage());
+                field.set(tempDTO, fieldValue); // Set value dynamically
+
+                // Validate the temporary object
+                Set<ConstraintViolation<EmployeeDTO>> violations = validator.validateProperty(tempDTO, fieldName);
+                for (ConstraintViolation<EmployeeDTO> violation : violations) {
+                    errorList.add(violation.getMessage());
                 }
-
-
             } catch (NoSuchFieldException e) {
-                errorList.add("Key is not correct: " + fieldName);
+                errorList.add("Invalid Field: " + fieldName);
             } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            catch (Exception e){
-                e.printStackTrace();
+                errorList.add("Access Error: " + fieldName);
+            } catch (Exception e) {
+                errorList.add("Invalid Value for Field: " + fieldName);
             }
         }
-
-
-//        List<String> errorList = new ArrayList<>();
-//        Set<String> fieldNames = new HashSet<>(Arrays.asList("name", "address", "salary"));
-//        for (Entry<String, Object>:map.entrySet()){
-//            String key = entry.getKey();
-//            Object value = entry.getValue();
-//            if (!fieldNames.contains(key)) {
-//                errorList.add("Key is not correct " + key);
-//            }
-//            if (key.equals("name")) {
-//                String name = (String) value;
-//                if (name.length() < 2 || name.length() > 30) {
-//                    errorList.add("Name Size Validation ERROR");
-//                }
-//            }
-//            if (key.equals("address")) {
-//                String address = (String) value;
-//                if (address.length() < 2 || address.length() > 100) {
-//                    errorList.add("Address Size Validation ERROR");
-//                }
-//            }
-//            if (key.equals("salary")) {
-//                String salary = (String) value;
-//                if (salary.length() < 2 || salary.length() > 100) {
-//                    errorList.add("Invalid Salary");
-//                }
-//            }
-//
-//        }
-
-        return null;
+        return errorList;
     }
+
+
+    @Override
+    public void partialUpdate(EmployeeEntity employeeEntity, Map<String, Object> map) {
+        map.forEach((key, value) -> {
+            switch (key) {
+                case "name":
+                    if (value instanceof String) {
+                        employeeEntity.setName((String) value);
+                    }
+                    break;
+                case "address":
+                    if (value instanceof String) {
+                        employeeEntity.setAddress((String) value);
+                    }
+                    break;
+                case "salary":
+                    if (value instanceof Number) {
+                        employeeEntity.setSalary(((Number) value).intValue());
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid field: " + key);
+            }
+        });
+
+        //  DB mein persist karna zaroori hai!
+        employeeRepository.save(employeeEntity);
+    }
+
+
+    @Override
+    public void deleteSingle(Integer id) {
+        employeeRepository.deleteById(id);
+    }
+
 
 }

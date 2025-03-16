@@ -17,4 +17,8 @@ public interface MyService {
     EmployeeEntity updateAll(EmployeeDTO employeeDTO, EmployeeEntity employeeEntity);
 
     List<String> validation(Map<String, Object> map);
+
+    void partialUpdate(EmployeeEntity employeeEntity, Map<String, Object> map);
+
+    void deleteSingle(Integer id);
 }
