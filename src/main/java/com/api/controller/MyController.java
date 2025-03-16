@@ -78,5 +78,42 @@ public class MyController {
             }
         }
     }
+
+
+    // I will Start Partial update from Here
+    @PatchMapping("employees/{id}")
+    public ResponseEntity<?> updatePartial(@PathVariable int id, @RequestBody Map<String, Object> map) {
+        List<String> errorList = myService.validation(map);
+        if (!errorList.isEmpty()) {
+            return ResponseEntity.badRequest().body(errorList);
+        }
+
+        Optional<EmployeeEntity> data = myService.readSingle(id);
+        if (data.isPresent()) {
+            EmployeeEntity employeeEntity = data.get();
+            myService.partialUpdate(employeeEntity, map);
+
+            // **Ensure DB save is successful**
+            return ResponseEntity.ok("Employee Updated Successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee ID Not Found");
+        }
+    }
+
+
+    @DeleteMapping("employees/{id}")
+    public ResponseEntity<?> deleteSingle(@PathVariable int id) {
+        Optional<EmployeeEntity> data = myService.readSingle(id);
+        if (data.isPresent()) {
+            myService.deleteSingle(id);
+            return ResponseEntity.ok("Employee Deleted Successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("ID Does not Exist");
+        }
+    }
+
+}
+
     // I will Start Partial update 
 }
+
