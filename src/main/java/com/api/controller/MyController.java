@@ -79,6 +79,7 @@ public class MyController {
         }
     }
 
+
     // I will Start Partial update from Here
     @PatchMapping("employees/{id}")
     public ResponseEntity<?> updatePartial(@PathVariable int id, @RequestBody Map<String, Object> map) {
@@ -112,3 +113,7 @@ public class MyController {
     }
 
 }
+
+    // I will Start Partial update 
+}
+
